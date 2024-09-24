@@ -1,6 +1,4 @@
 const jwt = require( 'jsonwebtoken');
-const fs = require( 'fs');
-const path = require( 'path');
 const express = require('express');
 
 const app = express();
@@ -13,24 +11,24 @@ function generateJwt(privateKeyData) {
     const privateKey = Buffer(privateKeyData, 'base64').toString('utf8');
     // Cabeçalho do JWT
     const header = {
-        alg: 'RS256',
-        typ: 'JWT'
+        alg: process.env.JWT_ALGORITHM,
+        typ: process.env.JWT_TYPE
     };
 
     // Payload do JWT
     const payload = {
-        jti: '835e1f4f-6689-46a5-bd65-8e189fa23b0b',
-        sub: "bmp.digital.api.featbank_consig_priv",
-        iat: Math.floor(Date.now() / 1000), // Hora atual em segundos
-        nbf: Math.floor(Date.now() / 1000), // Hora atual em segundos
-        exp: Math.floor(Date.now() / 1000) + 3600, // Expira em 1 hora
-        iss: "bmp.digital.api.featbank_consig_priv",
-        aud: 'https://auth.moneyp.dev.br/connect/token'
+        jti: process.env.JWT_JTI,
+        sub: process.env.JWT_SUB,
+        iat: Math.floor(Date.now() / 1000),
+        nbf: Math.floor(Date.now() / 1000),
+        exp: Math.floor(Date.now() / 1000) + 3600,
+        iss: process.env.JWT_ISS,
+        aud: process.env.JWT_AUD,
     };
 
     // Assinatura do JWT
     const token = jwt.sign(payload, privateKey, {
-        algorithm: 'RS256',
+        algorithm: process.env.JWT_ALGORITHM,
         header: header
     });
 
@@ -46,6 +44,6 @@ app.post('/generate-token', (req, res) => {
     return res.status(200).json({ token });
 })
 
-app.listen(3000, () => {
-    console.log('Server is running on port 3000')
+app.listen(Number(process.env.PORT), () => {
+    console.log(`Server is running on port ${process.env.PORT}`);
 })
